@@ -92,6 +92,3 @@ streamlit run app.py
 - Click **Predict** to see results
 
 ---
-
-## 🧠 Author
-Built by **Nitya Mehta** using FastF1, Scikit-Learn, XGBoost, and pure Formula 1 passion.
