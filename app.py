@@ -29,27 +29,50 @@ st.markdown("Select the race and enter driver grid positions to predict the fina
 selected_race_name = st.selectbox("Select Race", event_names)
 round_number = race_name_to_round[selected_race_name]
 
-# Grid positions input
+# Grid positions input (driver selection instead of numbers)
 st.subheader("Grid Positions (1 = Pole Position)")
+
 grid_positions = {}
+chosen_drivers = set()
+
 cols = st.columns(4)
-for i, driver in enumerate(driver_abbrs):
-    with cols[i % 4]:
-        grid_positions[driver] = st.number_input(f"{driver}", min_value=1, max_value=20, value=i+1)
+for pos in range(1, 21):  # 20 grid positions
+    with cols[(pos - 1) % 4]:
+        # Filter supaya driver yang sudah dipilih tidak muncul lagi
+        available = [d for d in driver_abbrs if d not in chosen_drivers]
+        driver = st.selectbox(
+            f"Grid Position {pos}",
+            options=["-"] + available,
+            key=f"grid_pos_{pos}"
+        )
+        if driver != "-":
+            grid_positions[pos] = driver
+            chosen_drivers.add(driver)
+
 
 # Prediction logic
 if st.button("Predict Race Results"):
-    GridPosition = [grid_positions[driver] for driver in driver_abbrs]
+    # Balik mapping: driver -> posisi grid
+    driver_to_grid = {driver: pos for pos, driver in grid_positions.items() if driver != "-"}
 
-    pred_gp_data = pd.DataFrame({
-        "Round": [round_number] * 20,
-        "Abbreviation": driver_abbrs,
-        "GridPosition": GridPosition,
-        "Points": filtered_drivers_info["Points"],
-        "AvgQualiPosition": filtered_drivers_info["AvgQualiPosition"],
-        "AvgRacePosition": filtered_drivers_info["AvgRacePosition"],
-        "QualifyingScore": (filtered_drivers_info["AvgQualiPosition"] + GridPosition) / 2
-    })
+    # Pastikan semua driver sudah ditempatkan
+    if len(driver_to_grid) < 20:
+        st.error("⚠️ Semua driver harus dipilih sebelum prediksi!")
+    else:
+        GridPosition = [driver_to_grid[driver] for driver in driver_abbrs]
+
+        pred_gp_data = pd.DataFrame({
+            "Round": [round_number] * 20,
+            "Abbreviation": driver_abbrs,
+            "GridPosition": GridPosition,
+            "Points": filtered_drivers_info["Points"],
+            "AvgQualiPosition": filtered_drivers_info["AvgQualiPosition"],
+            "AvgRacePosition": filtered_drivers_info["AvgRacePosition"],
+            "QualifyingScore": (filtered_drivers_info["AvgQualiPosition"] + GridPosition) / 2
+        })
+
+        # ... lanjut ke scaler + prediksi seperti sebelumnya
+
 
     label_enc_driver = LabelEncoder()
     pred_gp_data["Abbreviation"] = label_enc_driver.fit_transform(pred_gp_data["Abbreviation"])
