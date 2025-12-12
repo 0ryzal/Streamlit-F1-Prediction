@@ -71,7 +71,7 @@ Formula1-Predictor/
 
 ## 🌐 Live App
 You can try the live app here:  
-**[https://f1-prediction-machine.streamlit.app/](https://f1-prediction-machine.streamlit.app/)**
+**[https://race-f1-winner-prediction.streamlit.app//](https://race-f1-winner-prediction.streamlit.app/)**
 
 ---
 
