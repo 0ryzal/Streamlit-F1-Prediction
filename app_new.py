@@ -266,8 +266,18 @@ st.markdown("""
 # ===== RACE SELECTION =====
 st.markdown('<div class="section-header">📍 Race Selection</div>', unsafe_allow_html=True)
 
-selected_race_name = st.selectbox("Select Grand Prix", event_names)
-round_number = race_name_to_round[selected_race_name]
+col1, col2 = st.columns([2, 1])
+with col1:
+    selected_race_name = st.selectbox("Select Grand Prix", event_names, label_visibility="collapsed")
+    round_number = race_name_to_round[selected_race_name]
+
+with col2:
+    st.markdown(f"""
+        <div class="race-info-card">
+            <div class="race-info-label">Round</div>
+            <div class="race-info-value">{round_number}</div>
+        </div>
+    """, unsafe_allow_html=True)
 
 # ===== GRID POSITIONS INPUT =====
 st.markdown('<div class="section-header">🏁 Grid Positions</div>', unsafe_allow_html=True)
@@ -410,34 +420,24 @@ if predict_button:
                 
                 position_class = f"position-{idx}" if idx <= 3 else ""
                 
-                # Build points badge HTML separately
-                if pts > 0:
-                    points_section = f'<div class="points-badge">{pts} PTS</div>'
-                else:
-                    points_section = ''
-                
-                # Build confidence section separately
-                confidence_section = f'''<div style="margin-left: 1rem; width: 100px;">
+                st.markdown(f"""
+                    <div class="position-row {position_class}" style="border-left-color: {team_color};">
+                        <div class="position-number">{idx}</div>
+                        <div class="driver-info">
+                            <div class="driver-name">{driver_name}</div>
+                            <div class="driver-abbr">{driver_abbr}</div>
+                        </div>
+                        <div class="grid-pos">Grid: P{grid_pos}</div>
+                        {f'<div class="points-badge">{pts} PTS</div>' if pts > 0 else ''}
+                        <div style="margin-left: 1rem; width: 100px;">
                             <div style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Confidence</div>
                             <div style="color: white; font-weight: 700;">{confidence}%</div>
                             <div class="confidence-bar">
                                 <div class="confidence-fill" style="width: {confidence}%;"></div>
                             </div>
-                        </div>'''
-                
-                # Build complete HTML without nested f-strings
-                html_output = '<div class="position-row ' + position_class + '" style="border-left-color: ' + team_color + ';">' + \
-                    '<div class="position-number">' + str(idx) + '</div>' + \
-                    '<div class="driver-info">' + \
-                        '<div class="driver-name">' + driver_name + '</div>' + \
-                        '<div class="driver-abbr">' + driver_abbr + '</div>' + \
-                    '</div>' + \
-                    '<div class="grid-pos">Grid: P' + str(grid_pos) + '</div>' + \
-                    points_section + \
-                    confidence_section + \
-                    '</div>'
-                
-                st.markdown(html_output, unsafe_allow_html=True)
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
             
             st.markdown('</div>', unsafe_allow_html=True)
             
